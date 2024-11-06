@@ -493,7 +493,11 @@ async Adminpost_collection(){
 },
 
 async Adminpostlist_collection(){
-            onSnapshot(query(collection(db, 'list_of_order_details_for_tracking_and_payment')), (snap) =>{snap.forEach((doc)=>{
+             
+
+            onSnapshot(query(collection(db, 'list_of_order_details_for_tracking_and_payment')
+           // ,where('client_token_ID', '==' , this.$route.params.Trackinginput)
+          ), (snap) =>{snap.forEach((doc)=>{
                 
               var list_of_order_details_data = {
                            ID: doc.id,
@@ -532,21 +536,23 @@ async Adminpostlist_collection(){
             })})
         },
 
-       async add_tracking_ID(){
+       async add_tracking_ID(order_details_data){
         this.$refs.tracking_id_value.focus()
        },
+       
        async add_tracking(order_details_data){
        var tracking_id_input_time = Date()
         //fetch by sellerid and obtain deduction total
         
-        await onSnapshot(query(collection(db,'admin_database'),
-        where('user_ID', '==', order_details_data.seller_ID)),(admin_database_admin)=>{ 
+        await getDocs (query(
+                collection(db,'admin_database'),
+                where('user_ID', '==', order_details_data.seller_ID))).then((admin_database_admin)=>{ 
                 
                 admin_database_admin.forEach ((doc)=>{
                   this.deduction_amount_late_shipment = doc.data().deduction_amount_late_shipment;
                   this.admin_database_uid =  doc.id;       
                 } )
-                })    
+                })   
        
         // fetch id
           this.order_details_data_ID = order_details_data.ID;

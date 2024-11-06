@@ -489,67 +489,46 @@ filtered_get_all_items_in_cart(){return this.cartpostprofile.filter((cartpostpro
                         };
                        this.order_details_for_tracking_and_payment_Array.push(order_details_for_tracking_and_payment);
                         //removed from pending
-                    
+                        console
                                 })}catch (error) {
                     console.error("Error collecting data:", error);
                     }
                     //add cart to database
-                    this.order_details_for_tracking_and_payment_Array.forEach(docinstant_Array => {
+                    this.order_details_for_tracking_and_payment_Array.forEach(async (docinstant_Array) => {
+    const specific_order_id = docinstant_Array.specific_order_id;
+    console.log("Processing specific_order_id:", specific_order_id);
 
-            var sellerID = docinstant_Array.seller_ID;
-            console.log("Document data seller_ID:", sellerID);
-            //////
-            onSnapshot(query(collection(db,  'order_details_for_tracking_and_payment'), where('seller_ID', '==' , sellerID)),
-            (cart_sellers_snap) =>{
-              cart_sellers_snap.forEach((doc) => {
-                //this.find_admin_seller = doc.data().seller_ID; 
-              //console.log(this.find_cart_admin_seller)
-                if (doc.empty) {
-                      console.log("No documents found matching this seller_ID");
-                      addDoc(collection(db, 'list_of_order_details_for_tracking_and_payment'), docinstant_Array)
-                        .then(() => console.log("Added to list_of_order_details_for_tracking_and_payment"))
-                        .catch(err => console.error("Error adding to list:", err));   
-                        
-                        addDoc(collection(db, 'order_details_for_tracking_and_payment'), docinstant_Array)
-                        .then(() => console.log("Added to order_details_for_tracking_and_payment"))
-                        .catch(err => console.error("Error adding to order details:", err));
-                  }else{
+    try {
+        // Step 1: Always add to 'list_of_order_details_for_tracking_and_payment'
+        await addDoc(collection(db, 'list_of_order_details_for_tracking_and_payment'), docinstant_Array);
+        console.log("Added to list_of_order_details_for_tracking_and_payment");
 
-                  console.log("Default case for seller_ID:", sellerID);
-                    // Default case only adds to 'list_of_order_details_for_tracking_and_payment'
-                    addDoc(collection(db, 'list_of_order_details_for_tracking_and_payment'), docinstant_Array)
-                        .then(() => console.log("Added to list_of_order_details_for_tracking_and_payment in default case"))
-                        .catch(err => console.error("Error adding to list:", err));
-                  
-                  }
-            }
-          )})
-            //////
-          
-            // Step 3: Switch case handling
-            // switch (sellerID) {
-            //     case '':
-            //         console.log("Empty seller_ID case");
-            //         // Add to both collections if seller_ID is empty
-            //         addDoc(collection(db, 'list_of_order_details_for_tracking_and_payment'), order_details_for_tracking_and_payment)
-            //             .then(() => console.log("Added to list_of_order_details_for_tracking_and_payment"))
-            //             .catch(err => console.error("Error adding to list:", err));
+        // Step 2: Check if 'order_details_for_tracking_and_payment' already has this specific_order_id
+        const queryRef = query(
+            collection(db, 'order_details_for_tracking_and_payment'),
+            where('specific_order_id', '==', specific_order_id)
+        );
 
-            //         addDoc(collection(db, 'order_details_for_tracking_and_payment'), order_details_for_tracking_and_payment)
-            //             .then(() => console.log("Added to order_details_for_tracking_and_payment"))
-            //             .catch(err => console.error("Error adding to order details:", err));
-            //         break;
+        const cart_sellers_snap = await getDocs(queryRef);
 
-            //     default:
-            //         console.log("Default case for seller_ID:", sellerID);
-            //         // Default case only adds to 'list_of_order_details_for_tracking_and_payment'
-            //         addDoc(collection(db, 'list_of_order_details_for_tracking_and_payment'), order_details_for_tracking_and_payment)
-            //             .then(() => console.log("Added to list_of_order_details_for_tracking_and_payment in default case"))
-            //             .catch(err => console.error("Error adding to list:", err));
-            //         break;
+        // Only add to 'order_details_for_tracking_and_payment' if no document with this specific_order_id exists
+        if (cart_sellers_snap.empty) {
+            console.log("No existing entry for specific_order_id, adding to order_details_for_tracking_and_payment");
 
-            //           }
-                  });
+            await addDoc(collection(db, 'order_details_for_tracking_and_payment'), docinstant_Array);
+            console.log("Added to order_details_for_tracking_and_payment");
+        } else {
+            console.log("Document with this specific_order_id already exists, skipping upload to order_details_for_tracking_and_payment");
+        }
+
+    } catch (error) {
+        console.error("Error processing specific_order_id:", specific_order_id, error);
+    }
+});
+
+
+
+
 
                      //add cart to database for each data
             /////
@@ -713,7 +692,7 @@ filtered_get_all_items_in_cart(){return this.cartpostprofile.filter((cartpostpro
                 admin_monitor_new_id:   doc.data().admin_monitor_new_id,
               }
 
-                              this.main_cart_content_list.push(main_cart_content_list);
+           this.main_cart_content_list.push(main_cart_content_list);
 
               console.log('main cart fetch observed');
             })  }) 
