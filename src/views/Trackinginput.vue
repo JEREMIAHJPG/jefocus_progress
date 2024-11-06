@@ -160,7 +160,7 @@
           <v-btn
             class="my-2"
             text="Submit"
-            @click="add_tracking_ID()"
+            @click="add_tracking_ID(order_details_data)"
           ></v-btn>
         </template>
 
