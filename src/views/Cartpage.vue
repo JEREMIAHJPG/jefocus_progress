@@ -45,13 +45,13 @@
               </div>
                 <div class=container1 >
 
-            <form  @submit.prevent="payWithPaystack" @click="change_sum_total()" action="/action1_page.php">
+            <form  @submit.prevent="payWithPaystack" @click="total_new_cart_summation()" action="/action1_page.php">
           <div class="row">
               <div class="col-255">
                   <label for="fname">First Name</label>
               </div>
               
-                  <input class="col-755" type="text" id="fname" @input="change_sum_total()" v-model="payment_firstname" name="firstname" placeholder="your name...">
+                  <input class="col-755" type="text" id="fname" @input="total_new_cart_summation()" v-model="payment_firstname" name="firstname" placeholder="your name...">
               
           </div>
           <div class="row">
@@ -222,6 +222,7 @@ export default {
     this.total_new_cart_summation();
     this.total_cart_summation();
     this.check_cart_email_validation();
+    this.sumtotal()
     
   },
   mounted(){
@@ -371,7 +372,7 @@ filtered_get_all_items_in_cart(){return this.cartpostprofile.filter((cartpostpro
                }
                }
                //time of order placed 
-            let currentTime = new Date();
+            var currentTime = new Date();
             var hoursT = currentTime.getHours();
             var minsT  = currentTime.getMinutes();
             var secT   = currentTime.getSeconds();
@@ -387,7 +388,7 @@ filtered_get_all_items_in_cart(){return this.cartpostprofile.filter((cartpostpro
             var deadline_time_of_order_placed = deadline_Time_hoursT + ":" + deadline_Time_minsT + ":" + deadline_Time_secT;
                // create database for orders placed
             var time_details_of_order_placed = {time_details_currentTime :{time_of_order_placed:  time_of_order_placed,
-                                                                              currentTime:           currentTime
+                                                                              currentTime:           new Date()
                                               },
 
                                               time_details_deadline_Time :{deadline_time_of_order_placed: deadline_time_of_order_placed,                                                                      
@@ -462,14 +463,14 @@ filtered_get_all_items_in_cart(){return this.cartpostprofile.filter((cartpostpro
               //  var seller_ID = tracking_input.seller_ID;
                 var order_details_for_tracking_and_payment = {
                           seller_ID: tracking_input.seller_ID,
-                           id: tracking_input.id, 
-                           main_quantity:tracking_input.main_quantity, 
-                           First_image_selected:tracking_input.First_image_selected, 
-                           Second_image_selected:tracking_input.Second_image_selected, 
-                           title: tracking_input.title,
-                           qty:  tracking_input.qty,
-                           total_amount: tracking_input.total_amount,
-                           size: tracking_input.size,
+                            id: tracking_input.id, 
+                            main_quantity:tracking_input.main_quantity, 
+                            First_image_selected:tracking_input.First_image_selected, 
+                            Second_image_selected:tracking_input.Second_image_selected, 
+                            title: tracking_input.title,
+                            qty:  tracking_input.qty,
+                            total_amount: tracking_input.total_amount,
+                            size: tracking_input.size,
                           price: tracking_input.price, 
                           client_token_ID:  this.$route.params.Cartpage,
                           client_email : localStorage.getItem(`client_email`),
@@ -758,7 +759,7 @@ filtered_get_all_items_in_cart(){return this.cartpostprofile.filter((cartpostpro
                   };
 
                 console.log("updated cart qty");   
-                this.sum_real_value = this.cart_contents_list.reduce((prev, curr) => prev + curr.total_amount,0);
+                this.sum_real_value = this.main_cart_content_list.reduce((prev, curr) => prev + curr.total_amount,0);
 
                 // this.display_cart_items();               
          },

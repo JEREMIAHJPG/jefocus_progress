@@ -1,5 +1,76 @@
 <template>
-    
+     <v-dialog
+      v-model="dialog"
+      max-width="480"
+    >
+      <v-card title="Carefully Input Tracking ID">
+        <template v-slot:text>
+          <input type="text" name="transaction_ID" v-model = add_tracking_ID_value placeholder="Input Tracking ID" id="" style="border: 1px black solid">
+          <v-btn
+            class="my-2"
+            text="Submit"
+            @click="add_tracking_ID"
+          ></v-btn>
+        </template>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            text="Close"
+            variant="text"
+            @click="dialog = false"
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+      v-model="dialog2"
+      max-width="350"
+    >
+      <v-card title="Please ensure this is correct">
+        <template v-slot:text>
+          <v-btn
+            class="my-2"
+            text="tracking_ID input"
+            @click="dialog3 = !dialog3"
+          ></v-btn>
+          <v-btn
+            class="my-2"
+            text="Submit"
+            @click="dialog3 = !dialog3"
+          ></v-btn>
+        </template>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            text="Close"
+            variant="text"
+            @click="dialog2 = false"
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+      v-model="dialog3"
+      width="auto"
+    >
+      <v-card title="Dialog 3">
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <!-- <v-btn
+            text="succ"
+            variant="text"
+            @click="dialog3 = false"
+          ></v-btn> -->
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
   <v-container class="bg-surface-variant">
     
@@ -150,78 +221,7 @@
     ><input @focus="add_tracking(order_details_data)" ref="tracking_id_value" type="text" name="transaction_ID" :placeholder= order_details_data.tracking_id id="" >
   </v-btn>
 
-    <v-dialog
-      v-model="dialog"
-      max-width="480"
-    >
-      <v-card title="Carefully Input Tracking ID">
-        <template v-slot:text>
-          <input type="text" name="transaction_ID" v-model=add_tracking_ID placeholder="Input Tracking ID" id="" style="border: 1px black solid">
-          <v-btn
-            class="my-2"
-            text="Submit"
-            @click="add_tracking_ID(order_details_data)"
-          ></v-btn>
-        </template>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn
-            text="Close"
-            variant="text"
-            @click="dialog = false"
-          ></v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog
-      v-model="dialog2"
-      max-width="350"
-    >
-      <v-card title="Please ensure this is correct">
-        <template v-slot:text>
-          <v-btn
-            class="my-2"
-            text="tracking_ID input"
-            @click="dialog3 = !dialog3"
-          ></v-btn>
-          <v-btn
-            class="my-2"
-            text="Submit"
-            @click="dialog3 = !dialog3"
-          ></v-btn>
-        </template>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn
-            text="Close"
-            variant="text"
-            @click="dialog2 = false"
-          ></v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog
-      v-model="dialog3"
-      width="auto"
-    >
-      <v-card title="Dialog 3">
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <!-- <v-btn
-            text="succ"
-            variant="text"
-            @click="dialog3 = false"
-          ></v-btn> -->
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+   
   </div>
 
 </td>
@@ -449,6 +449,8 @@ export default {
         deduction_amount_late_shipment:'',
         admin_database_uid:'',
         HistoryofOrderplaced_list:[],
+        order_details_data_time:'',
+        companyprofit:'',
 
       }
     },
@@ -536,20 +538,84 @@ async Adminpostlist_collection(){
             })})
         },
 
-       async add_tracking_ID(order_details_data){
-        this.$refs.tracking_id_value.focus()
+       async add_tracking_ID(){
+       // this.$refs.tracking_id_value.focus()
+        var tracking_id_input_time = await Date();
+        
+        if((tracking_id_input_time>this.order_details_data_time)&&(this.previous_tracking_id_input="Input Tracking ID")){
+
+//update trackingID
+await updateDoc(doc(db,'order_details_for_tracking_and_payment', this.order_details_data_ID),
+        {
+        delivery_status:                  deleteField(),
+        shipment_status:                  deleteField(),
+        net_profit:                       deleteField(),
+        shipment_status:                  deleteField(),
+        tracking_id:                      deleteField(),
+        time_delay_commission:            deleteField(),
+        companyprofit:                    deleteField(),
+        }
+);
+
+await setDoc(doc(db,'order_details_for_tracking_and_payment', this.order_details_data_ID), 
+{
+delivery_status:      "delivery pending",
+shipment_status:      "shipment has begun",        
+net_profit:             this.net_profit*0.67,
+tracking_id:           this.add_tracking_ID_value, 
+date_of_shipment_notification: new Date(),   
+companyprofit:         this.companyprofit,
+time_delay_commission:            0.1*this.net_profit*0.67        
+}, {merge:true})
+
+//
+await updateDoc(doc(db,'admin_database', this.admin_database_uid),
+{
+deduction_amount_late_shipment :  deleteField(),                                                        
+},
+
+);
+// setdoc for 10% netprofit negative deduction_amount_late_shipment
+await setDoc(doc(db,'admin_database',this.admin_database_uid), 
+{
+deduction_amount_late_shipment: this.deduction_amount_late_shipment - 0.1*this.net_profit*0.67                            
+}, {merge:true})
+
+}else{
+await updateDoc(doc(db,'order_details_for_tracking_and_payment',this.order_details_data_ID),
+        {
+        delivery_status:                  deleteField(),
+        shipment_status:                  deleteField(),
+        net_profit:                       deleteField(),
+        tracking_id:                      deleteField(),
+        companyprofit:                    deleteField(),
+        }
+);
+
+await setDoc(doc(db,'order_details_for_tracking_and_payment', this.admin_monitor_id), 
+{
+delivery_status:      "delivery pending",
+shipment_status:      "shipment has begun",
+net_profit:             this.net_profit*0.67,
+tracking_id:           this.add_tracking_ID_value,
+companyprofit:         this.companyprofit,
+}, {merge:true})
+
+}
+
+this.dialog=false
        },
        
-       async add_tracking(order_details_data){
-       var tracking_id_input_time = Date()
-        //fetch by sellerid and obtain deduction total
-        
+       async add_tracking(order_details_data){  
+      this.order_details_data_time = order_details_data.time_details_of_order_placed.time_details_deadline_Time.deadline_Time
+        //fetch by sellerid and obtain deduction total       
         await getDocs (query(
                 collection(db,'admin_database'),
                 where('user_ID', '==', order_details_data.seller_ID))).then((admin_database_admin)=>{ 
                 
                 admin_database_admin.forEach ((doc)=>{
                   this.deduction_amount_late_shipment = doc.data().deduction_amount_late_shipment;
+                  
                   this.admin_database_uid =  doc.id;       
                 } )
                 })   
@@ -559,72 +625,17 @@ async Adminpostlist_collection(){
           //fetch specific id
           this.specific_order_id = order_details_data.specific_order_id;
           //use this specific id to fetch total, delete transactionid field and shipment status then setdoc adding transactionid field and shipment status
-          const snapshot = await getAggregateFromServer(query(collection(db, 'list_of_order_details_for_tracking_and_payment'), where('specific_order_id', '==' , this.specific_order_id)),{net_profit: sum('total_amount')})
-          this.net_profit = snapshot.data().net_profit;
-          
+          const snapshot = await getAggregateFromServer(query(collection(db, 'list_of_order_details_for_tracking_and_payment'), where('specific_order_id', '==' , this.specific_order_id)),{total_amount: sum('total_amount')})
+          this.net_profit = snapshot.data().total_amount*2/3;
+          this.companyprofit = snapshot.data().total_amount*1/3;
+        
                  await getDoc(doc(db,'order_details_for_tracking_and_payment',this.order_details_data_ID)).then((doc)=>{
                  this.previous_tracking_id_input = doc.data().tracking_id
                    })
 
-                if((tracking_id_input_time>order_details_data.time_details_of_order_placed.time_details_deadline_Time.deadline_Time)&&(this.previous_tracking_id_input="Input Tracking ID")){
+                
 
-                  //update trackingID
-                  await updateDoc(doc(db,'order_details_for_tracking_and_payment', this.order_details_data_ID),
-                          {
-                          delivery_status:                  deleteField(),
-                          shipment_status:                  deleteField(),
-                          net_profit:                       deleteField(),
-                          shipment_status:                  deleteField(),
-                          tracking_id:                      deleteField(),
-                          time_delay_commission:            deleteField(),
-
-                          }
-          );
-
-          await setDoc(doc(db,'order_details_for_tracking_and_payment', this.order_details_data_ID), 
-                {
-                 delivery_status:      "delivery pending",
-                 shipment_status:      "shipment has begun",        
-                 net_profit:             this.net_profit*0.67,
-                 tracking_id:           this.add_tracking_ID_value, 
-                 date_of_shipment_notification: new Date(),   
-                 time_delay_commission:            0.1*this.net_profit*0.67        
-                }, {merge:true})
-
-                  //
-                 await updateDoc(doc(db,'admin_database', this.admin_database_uid),
-                {
-                deduction_amount_late_shipment :  deleteField(),                                                        
-                },
-               
-);
-// setdoc for 10% netprofit negative deduction_amount_late_shipment
-                 await setDoc(doc(db,'admin_database',this.admin_database_uid), 
-                {
-                 deduction_amount_late_shipment: this.deduction_amount_late_shipment - 0.1*this.net_profit*0.67                            
-                }, {merge:true})
-
-}else{
-  await updateDoc(doc(db,'order_details_for_tracking_and_payment',this.order_details_data_ID),
-                          {
-                          delivery_status:                  deleteField(),
-                          shipment_status:                  deleteField(),
-                          net_profit:                       deleteField(),
-                          tracking_id:                      deleteField()                
-                          }
-          );
-
-          await setDoc(doc(db,'order_details_for_tracking_and_payment', this.admin_monitor_id), 
-                {
-                 delivery_status:      "delivery pending",
-                 shipment_status:      "shipment has begun",
-                 net_profit:             this.net_profit*0.67,
-                 tracking_id:           this.add_tracking_ID_value,             
-                }, {merge:true})
-
-}
-
-          this.dialog=true
+          
           //set account straight from admin creation--
           //then set deduction field to negative 10% price so that the net profit during payment is calculated--
           //call this in tracking iframe--

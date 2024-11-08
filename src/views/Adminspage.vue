@@ -659,7 +659,7 @@ localStorage.setItem(`url3`, JSON.stringify(this.url_video))
                 First_image_selected:   this.url1,
                 Second_image_selected:  this.url2,
                 video_selected:         this.url_video,
-                price:                  this.main_price,
+                price:                  this.main_price*1.33,
                 qty_per_mainprice:       1,
                 total_amount:           this.main_price*1,
                 youtubelink:            this.youtubelink,
