@@ -81,12 +81,12 @@
       v-model="dialog3"
       width="auto"
     >
-      <v-card :title= tracking_statement>
+      <v-card :title ={tracking_statement} >
         <v-card-actions>
           <v-spacer></v-spacer>
 
           <v-btn
-            text="succ"
+            text="close"
             variant="text"
             @click="dialog3 = false"
           ></v-btn>
@@ -343,10 +343,9 @@ methods:{
       });
         },
   async dialog_delivery_value(){
-    this.dialog3 = true;
+    //this.dialog3 = true;
      //change delivery and shipment status to delivered or shipped and payment status to payment assured
-
-     await updateDoc(doc(db,'order_details_for_tracking_and_payment',this.ID_order_delete),
+    try{await updateDoc(doc(db,'order_details_for_tracking_and_payment',this.ID_order_delete),
                           {
                           delivery_status:                  deleteField(),
                           shipment_status:                  deleteField(),                
@@ -447,6 +446,10 @@ await getDocs(query(collection(db,'admin_database'),
     //setdoc delivery status as delivery successfull
     
     // this.dialog2_statement=`Are you sure the delivery is successful ?`
+    }catch(error){
+        this.dialog3=false;
+    }
+     
   },
 
 

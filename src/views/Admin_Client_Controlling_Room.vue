@@ -1,4 +1,71 @@
 <template>
+  <v-dialog
+      v-model="dialog"
+      max-width="700"
+      max-height="500"
+    >
+      <v-card title="Tracking Iframe">
+        <template v-slot:text>
+          <iframe
+          width="100%"
+          height="600px"
+          :src= "`https://logistics.konga.com/track?order_number=${this.iframe_link_data_client}`"
+          >
+
+          </iframe>
+          <!-- <input type="text" name="transaction_ID" placeholder="Input Tracking ID" id="" style="border: 1px black solid"> -->
+          <!-- <v-btn
+            class="my-2"
+            text="Submit"
+            @click="dialog2 = true"
+          ></v-btn> -->
+        </template>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          
+          <v-btn
+            text="Close"
+            variant="text"
+            @click="dialog = false"
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    
+    <v-dialog
+      v-model="dialog"
+      max-width="700"
+      max-height="500"
+    >
+      <v-card title="Tracking Iframe">
+        <template v-slot:text>
+          <iframe
+         width="100%"
+          height="600px"
+          :src= "`https://logistics.konga.com/track?order_number=${this.iframe_link_data_admin}`"
+          >
+          </iframe>
+          <h1 style="color: red" >{{ does_tracking_number_match }}</h1> 
+          <!-- <input type="text" name="transaction_ID" placeholder="Input Tracking ID" id="" style="border: 1px black solid"> -->
+          <!-- <v-btn
+            class="my-2"
+            text="Submit"
+            @click="dialog2 = true"
+          ></v-btn> -->
+        </template>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          
+          <v-btn
+            text="Close"
+            variant="text"
+            @click="dialog = false"
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
        <v-col     
         cols="12"
         xs="4"
@@ -173,39 +240,7 @@
        </v-btn>
        </div>
         
-    <v-dialog
-      v-model="dialog"
-      max-width="700"
-      max-height="500"
-    >
-      <v-card title="Tracking Iframe">
-        <template v-slot:text>
-          <iframe
-          width="100%"
-          height="600px"
-          :src= "`https://logistics.konga.com/track?order_number=${this.iframe_link_data_client}`"
-          >
-
-          </iframe>
-          <!-- <input type="text" name="transaction_ID" placeholder="Input Tracking ID" id="" style="border: 1px black solid"> -->
-          <!-- <v-btn
-            class="my-2"
-            text="Submit"
-            @click="dialog2 = true"
-          ></v-btn> -->
-        </template>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          
-          <v-btn
-            text="Close"
-            variant="text"
-            @click="dialog = false"
-          ></v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    
            </td>
       
         <td>{{History_pending_list_client_data.Vat_Commission}}</td>
@@ -446,39 +481,6 @@
        </div>
         
 
-    <v-dialog
-      v-model="dialog"
-      max-width="700"
-      max-height="500"
-    >
-      <v-card title="Tracking Iframe">
-        <template v-slot:text>
-          <iframe
-         width="100%"
-          height="600px"
-          :src= "`https://logistics.konga.com/track?order_number=${this.iframe_link_data_admin}`"
-          >
-          </iframe>
-          <h1 style="color: red" >{{ does_tracking_number_match }}</h1> 
-          <!-- <input type="text" name="transaction_ID" placeholder="Input Tracking ID" id="" style="border: 1px black solid"> -->
-          <!-- <v-btn
-            class="my-2"
-            text="Submit"
-            @click="dialog2 = true"
-          ></v-btn> -->
-        </template>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          
-          <v-btn
-            text="Close"
-            variant="text"
-            @click="dialog = false"
-          ></v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
            </td>     
         <td>{{History_admin_list_data.Vat_Commission}}</td>
         <td>{{History_admin_list_data.net_profit}}</td>
