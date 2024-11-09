@@ -395,7 +395,7 @@ filtered_get_all_items_in_cart(){return this.cartpostprofile.filter((cartpostpro
                                                                    deadline_Time:                  deadline_Time
                                               }
                                              }
-            var receipt = {total_amount:this.sum_value, fullname:fullname, payment_email: this.payment_email, countryphonenumber:countryphonenumber, 
+            var receipt = {total_amount:this.sum_real_value, fullname:fullname, payment_email: this.payment_email, countryphonenumber:countryphonenumber, 
             pickuplocation : this.pickuplocation, Order_No: this.Order_No, cartdate: Date()
             };
             console.log(receipt);
@@ -414,6 +414,7 @@ filtered_get_all_items_in_cart(){return this.cartpostprofile.filter((cartpostpro
           
             
           //fetch phonenumbers from the userid of the admindatabase from the seller_ID send sms to
+
            try{const itemsData = await this.get_all_new_items_data_in_cart();
     
     // Now you can safely call forEach on itemsData, which is an array
@@ -455,6 +456,23 @@ filtered_get_all_items_in_cart(){return this.cartpostprofile.filter((cartpostpro
           })}catch (error) {
     console.error('Error verifying payment:', error);
   }
+    //send message to client
+
+  fetch(targetUrl,{
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': "application/json",
+                      'apiKey': 'atsk_fd221a40d30b04649873b9094a955a5ffaf688e6f56ec3eecd05dc520b220617e5d4fd8c',
+                           },
+                  body: JSON.stringify({
+                  to: countryphonenumber,
+                  message: `JEfocus Art and Tech : Hello ${fullname} You placed a new order with Order No: ${this.Order_No}
+                            placed at ${cartdate}, with total amount ${this.sum_real_value}, your item/s will get to you at most in the next 8 working days`
+                          })
+              }).then(response => response.json())
+              .then(data => console.log(data))
+              .catch(error => console.error(error));
+             
               //send each order to the database for fetching in tracking input
               try{const itemsData2 = await this.get_all_new_items_data_in_cart();
     
@@ -522,14 +540,11 @@ filtered_get_all_items_in_cart(){return this.cartpostprofile.filter((cartpostpro
             console.log("Document with this specific_order_id already exists, skipping upload to order_details_for_tracking_and_payment");
         }
 
-    } catch (error) {
+    }catch (error) { 
         console.error("Error processing specific_order_id:", specific_order_id, error);
     }
+
 });
-
-
-
-
 
                      //add cart to database for each data
             /////
@@ -552,7 +567,7 @@ filtered_get_all_items_in_cart(){return this.cartpostprofile.filter((cartpostpro
         }
       } catch (error) {
         console.error('Error verifying payment:', error);
-                      }
+                      }                      
     },
   
          async payWithPaystack(payment_email){
